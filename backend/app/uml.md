@@ -2,12 +2,12 @@
 
 ```plantuml
 @startchen
+
 entity USER {
   id <<key>>
-  name
+  username
   email
-  password_hash
-  phone_number
+  hashed_password
   role
 }
 
@@ -75,6 +75,7 @@ BOOKS -M- BOOKING
 # // Class Diagram
 ```plantuml
 @startuml
+
 enum UserRole {
   ADMIN
   ORGANIZER
@@ -84,16 +85,16 @@ enum UserRole {
 enum TicketStatus {
   AVAILABLE
   SOLD
-  CANCELLED
 }
 
 class User {
   - id: int
-  - name: string
+  - username: string
   - email: string
-  - password_hash: string
-  - phone_number: string
+  - hashed_password: string
   - role: UserRole
+  - created_at: datetime
+  - updated_at: datetime
 
   + get_all()
   + get_by_id(id: int)
@@ -108,6 +109,9 @@ class Location {
   - name: string
   - address: string
   - capacity: int
+  - created_at: datetime
+  - updated_at: datetime
+  - deleted_at: datetime
 
   + get_all()
   + get_by_id(id: int)
@@ -125,6 +129,9 @@ class Event {
   - location_id: int
   - organizer_id: int
   - ticket_capacity: int
+  - created_at: datetime
+  - updated_at: datetime
+  - deleted_at: datetime
 
   + get_all()
   + get_by_id(id: int)
@@ -143,6 +150,9 @@ class Ticket {
   - seat_num: string
   - price: decimal
   - status: TicketStatus
+  - created_at: datetime
+  - updated_at: datetime
+  - deleted_at: datetime
 
   + get_all()
   + get_by_id(id: int)
@@ -158,13 +168,16 @@ class Booking {
   - user_id: int
   - ticket_id: int
   - date: date
+  - created_at: datetime
+  - updated_at: datetime
+  - deleted_at: datetime
 
   + get_all()
   + get_by_id(booking_number: int)
   + get_by_user(user_id: int)
   + get_by_ticket(ticket_id: int)
   + create(booking_data)
-  + update(id: int, booking_data)
+  + update(booking_number: int, booking_data)
   + delete(booking_number: int)
 }
 
@@ -174,8 +187,8 @@ Location "1" --> "0..*" Event : hosts
 Event "1" --> "0..*" Ticket : has
 Ticket "1" --> "0..1" Booking : booked in
 
-User -- UserRole
-Ticket -- TicketStatus
+User --> UserRole
+Ticket --> TicketStatus
 
 @enduml
 ```

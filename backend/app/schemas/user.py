@@ -2,6 +2,8 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
+from app.models.enums import UserRole
+
 
 class UserBase(BaseModel):
     username: str = Field(..., min_length=5, max_length=15)
@@ -20,7 +22,7 @@ class UserInDBBase(UserBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    is_superuser: bool = False
+    role: UserRole
 
     class Config:
         from_attributes = True

@@ -15,6 +15,7 @@ from app.core.config import settings
 
 from app.schemas.token import TokenData
 from app.schemas.user import User
+from app.models.enums import UserRole
 from app.crud.user import get_user_by_email
 
 
@@ -101,7 +102,7 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
     Raises:
         HTTPException: If the current user is not a superuser, an HTTP 403 Forbidden exception is raised.
     """
-    if not current_user.is_superuser:
+    if current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="The user doesn't have enough privileges",

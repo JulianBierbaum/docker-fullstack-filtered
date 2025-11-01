@@ -6,10 +6,6 @@ from app.api.main import api_router
 from app.core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database.session import Base, engine
-
-
-
 
 def cstm_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
@@ -35,8 +31,7 @@ app.add_middleware(
 app.include_router(api_router)
 
 
-
 # models must be imported and registered from app.models to create the tables
 
 # Create tables
-#Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)

@@ -8,6 +8,7 @@ from app.models.user import User
 from app.main import app
 from datetime import datetime
 from passlib.context import CryptContext
+from app.models.enums import UserRole
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///test.db"
 ALGORITHM = "HS256"
@@ -47,7 +48,7 @@ def client(db):
 @pytest.fixture
 def test_superuser(db):
     """Creates a superuser in the test database."""
-    user = User(username="superuser", email="superuser@example.com", hashed_password=hash_password("Kennwort1"), is_superuser=True, created_at=datetime.now())
+    user = User(username="superuser", email="superuser@example.com", hashed_password=hash_password("Kennwort1"), role=UserRole.ADMIN, created_at=datetime.now())
     db.add(user)
     db.commit()
     db.refresh(user)

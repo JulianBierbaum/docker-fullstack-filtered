@@ -3,6 +3,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate
 from app.core.security import get_password_hash, verify_password
 from datetime import datetime, timezone
+from app.models.enums import UserRole
 
 
 def create_user(*, db: Session, user: UserCreate):
@@ -22,8 +23,7 @@ def create_superuser(*, db: Session, user: UserCreate):
         username=user.username,
         email=user.email,
         hashed_password=get_password_hash(user.password),
-        is_superuser=True,
-        created_at=datetime.now(timezone.utc).isoformat(),
+        role=UserRole.ADMIN,
     )
     db.add(db_user)
     db.commit()
