@@ -9,4 +9,5 @@ class UserRole(Enum):
 
 class TicketStatus(Enum):
     AVAILABLE = "available"
+    CANCELLED = "cancelled"
     SOLD = "sold"
