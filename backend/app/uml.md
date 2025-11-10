@@ -83,7 +83,7 @@ enum UserRole {
 }
 
 enum TicketStatus {
-  AVAILABLE
+  CANCELLED
   SOLD
 }
 
