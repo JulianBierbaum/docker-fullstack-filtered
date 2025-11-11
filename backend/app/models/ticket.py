@@ -5,8 +5,6 @@ from sqlalchemy import (
     ForeignKey,
     DateTime,
     func,
-    Enum,
-    Numeric,
 )
 from sqlalchemy.orm import relationship
 from app.database.session import Base
@@ -17,7 +15,7 @@ class Ticket(Base):
     id = Column(Integer, primary_key=True, index=True)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     seat_num = Column(String(10), nullable=False)
-    price = Column(Numeric(10, 2), nullable=False)
+    price = Column(Integer, nullable=False)
     sold_at = Column(DateTime, nullable=False, default=func.now())
     cancelled_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, onupdate=func.now())

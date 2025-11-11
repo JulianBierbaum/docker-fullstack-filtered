@@ -14,8 +14,8 @@ entity USER {
 entity EVENT {
   id <<key>>
   title
-  date
-  time
+  event_date
+  start_time
   description
   location_id
   organizer_id
@@ -42,7 +42,6 @@ entity BOOKING {
   booking_number <<key>>
   user_id
   ticket_id
-  date
 }
 
 relationship ORGANIZES {
@@ -119,8 +118,8 @@ class Location {
 class Event {
   - id: int
   - title: string
-  - date: date
-  - time: string
+  - event_date: date
+  - start_time: string
   - description: string
   - location_id: int
   - organizer_id: int
@@ -163,10 +162,9 @@ class Booking {
   - booking_number: int
   - user_id: int
   - ticket_id: int
-  - date: date
   - created_at: datetime
   - updated_at: datetime
-  - deleted_at: datetime
+  - cancelled_at: datetime
 
   + get_all()
   + get_by_id(booking_number: int)
@@ -174,7 +172,7 @@ class Booking {
   + get_by_ticket(ticket_id: int)
   + create(booking_data)
   + update(booking_number: int, booking_data)
-  + delete(booking_number: int)
+  + cancel(booking_number: int)
 }
 
 User "1" --> "0..*" Event : organizes
