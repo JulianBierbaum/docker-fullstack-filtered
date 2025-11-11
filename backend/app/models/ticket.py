@@ -10,8 +10,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from app.database.session import Base
-from app.models.enums import TicketStatus
-
 
 class Ticket(Base):
     __tablename__ = "tickets"
@@ -20,8 +18,8 @@ class Ticket(Base):
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     seat_num = Column(String(10), nullable=False)
     price = Column(Numeric(10, 2), nullable=False)
-    status = Column(Enum(TicketStatus), nullable=False, default=TicketStatus.AVAILABLE)
-    created_at = Column(DateTime, nullable=False, default=func.now())
+    sold_at = Column(DateTime, nullable=False, default=func.now())
+    cancelled_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, onupdate=func.now())
     deleted_at = Column(DateTime, nullable=True)
 

@@ -34,7 +34,8 @@ entity TICKET {
   event_id
   seat_num
   price
-  status
+  sold_at
+  cancelled_at
 }
 
 entity BOOKING {
@@ -80,11 +81,6 @@ enum UserRole {
   ADMIN
   ORGANIZER
   VISITOR
-}
-
-enum TicketStatus {
-  CANCELLED
-  SOLD
 }
 
 class User {
@@ -149,8 +145,8 @@ class Ticket {
   - event_id: int
   - seat_num: string
   - price: decimal
-  - status: TicketStatus
-  - created_at: datetime
+  - sold_at: datetime
+  - cancelled_at: datetime
   - updated_at: datetime
   - deleted_at: datetime
 
@@ -188,7 +184,6 @@ Event "1" --> "0..*" Ticket : has
 Ticket "1" --> "0..1" Booking : booked in
 
 User --> UserRole
-Ticket --> TicketStatus
 
 @enduml
 ```
