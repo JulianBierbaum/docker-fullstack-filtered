@@ -89,22 +89,19 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-def get_current_active_superuser(current_user: CurrentUser) -> User:
-    """
-    Verify if the current user is a superuser.
+def roles_required(allowed_roles: list[UserRole]):
+    """checks if the current user is authorized
 
     Args:
-        current_user (CurrentUser): The user object to be checked.
-
-    Returns:
-        User: The current user if they are a superuser.
-
-    Raises:
-        HTTPException: If the current user is not a superuser, an HTTP 403 Forbidden exception is raised.
+        allowed_roles (List[RoleEnum]): list of allowed roles that the user should have
     """
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="The user doesn't have enough privileges",
-        )
-    return current_user
+
+    def role_checker(user: User = Depends(get_current_user)):
+        if not any(user.role == role.value for role in allowed_roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="The user doesn't have enough privileges",
+            )
+        return user
+
+    return role_checker

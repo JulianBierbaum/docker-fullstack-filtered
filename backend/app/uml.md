@@ -94,7 +94,7 @@ class User {
   + get_all()
   + get_by_id(id: int)
   + get_by_email(email: string)
-  + get_by_role(role: UserRole)
+  + authenticate_user(email: str, password: str)
   + create(user_data)
   + update(id: int, user_data)
 }
@@ -110,6 +110,7 @@ class Location {
 
   + get_all()
   + get_by_id(id: int)
+  + get_by_name(name: str)
   + create(location_data)
   + update(id: int, location_data)
   + delete(id: int)

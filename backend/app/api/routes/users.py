@@ -2,7 +2,8 @@ from typing import List
 from fastapi import APIRouter, Depends
 from app.crud import user as crud
 from app.schemas import user as schemas
-from app.api.deps import SessionDep, get_current_active_superuser
+from app.api.deps import SessionDep, roles_required
+from app.models.enums import UserRole
 
 
 router = APIRouter()
@@ -22,7 +23,7 @@ def get_user(db: SessionDep, user_id: int):
 
 @router.get(
     "/",
-    dependencies=[Depends(get_current_active_superuser)],
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
     response_model=List[schemas.User],
 )
 # @router.get("/", response_model=List[schemas.User])
