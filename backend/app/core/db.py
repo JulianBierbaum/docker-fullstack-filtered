@@ -6,6 +6,7 @@ from .config import settings
 from app.database.session import Base, engine
 from app.schemas import user as schemas
 from app.crud import user as crud
+from app.models.enums import UserRole
 
 # models must be imported and registered from app.models to create the tables
 from app.models.user import User
@@ -31,4 +32,4 @@ def init_db(session: Session) -> None:
             email=settings.FIRST_SUPERUSER_EMAIL,
             password=settings.FIRST_SUPERUSER_PASSWORD,
         )
-        _ = crud.create_superuser(db=session, user=user_in)
+        _ = crud.create_user(db=session, user=user_in, role=UserRole.ADMIN)
