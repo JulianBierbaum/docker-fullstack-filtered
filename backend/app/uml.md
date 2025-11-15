@@ -133,11 +133,9 @@ class Event {
   + get_by_id(id: int)
   + get_by_location(location_id: int)
   + get_by_organizer(organizer_id: int)
-  + get_available_events()
   + create(event_data)
   + update(id: int, event_data)
   + delete(id: int)
-  + get_available_tickets_count(id: int)
 }
 
 class Ticket {

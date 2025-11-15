@@ -28,7 +28,10 @@ def create_user(*, db: Session, user: UserCreate, role: UserRole):
 
 
 def get_user(*, db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise MissingUserException()
+    return db_user
 
 
 def get_users(db: Session):
