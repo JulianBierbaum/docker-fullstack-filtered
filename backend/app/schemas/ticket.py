@@ -13,7 +13,7 @@ class TicketCreate(TicketBase):
     pass
 
 
-class TicketUpdate(TicketBase):
+class TicketUpdate(BaseModel):
     event_id: Optional[int] = None
     seat_num: Optional[str] = Field(None, max_length=10)
     price: Optional[int] = Field(None)
@@ -22,9 +22,8 @@ class TicketUpdate(TicketBase):
 class TicketInDBBase(TicketBase):
     id: int
     sold_at: datetime
-    cancelled_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-    deleted_at: Optional[datetime] = None
+    cancelled_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

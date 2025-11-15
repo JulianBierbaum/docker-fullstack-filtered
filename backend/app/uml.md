@@ -151,10 +151,10 @@ class Ticket {
   + get_all()
   + get_by_id(id: int)
   + get_by_event(event_id: int)
-  + get_available_by_event(event_id: int)
+  + get_available_ticket_count_by_event(event_id: int)
   + create(ticket_data)
   + update(id: int, ticket_data)
-  + delete(id: int)
+  + cancel(id: int)
 }
 
 class Booking {

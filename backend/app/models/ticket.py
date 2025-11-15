@@ -17,9 +17,8 @@ class Ticket(Base):
     seat_num = Column(String(10), nullable=False)
     price = Column(Integer, nullable=False)
     sold_at = Column(DateTime, nullable=False, default=func.now())
-    cancelled_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, onupdate=func.now())
-    deleted_at = Column(DateTime, nullable=True)
+    cancelled_at = Column(DateTime, nullable=True)
 
     event = relationship("Event", back_populates="tickets")
     booking = relationship("Booking", back_populates="ticket")

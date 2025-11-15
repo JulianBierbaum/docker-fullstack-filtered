@@ -12,7 +12,7 @@ class BookingCreate(BookingBase):
     pass
 
 
-class BookingUpdate(BookingBase):
+class BookingUpdate(BaseModel):
     user_id: Optional[int] = None
     ticket_id: Optional[int] = None
 

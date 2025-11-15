@@ -13,7 +13,7 @@ class LocationCreate(LocationBase):
     pass
 
 
-class LocationUpdate(LocationBase):
+class LocationUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=5, max_length=15)
     address: Optional[str] = Field(None, min_length=5, max_length=200)
     capacity: Optional[int] = Field(None)

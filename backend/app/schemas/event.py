@@ -17,7 +17,7 @@ class EventCreate(EventBase):
     pass
 
 
-class EventUpdate(EventBase):
+class EventUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=5, max_length=100)
     event_date: Optional[date] = None
     start_time: Optional[time] = None

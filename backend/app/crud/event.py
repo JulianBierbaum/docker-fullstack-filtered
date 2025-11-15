@@ -10,7 +10,7 @@ from app.crud.user import get_user
 from app.models.enums import UserRole
 
 
-def get_event(db: Session):
+def get_events(db: Session):
     return db.query(Event).filter(Event.deleted_at.is_(None)).all()
 
 
@@ -40,14 +40,14 @@ def create_event(*, db: Session, event: EventCreate):
     
     _ = get_location(db=db, location_id=event.location_id)
 
-    db_event = event(
-        title = event.title,
-        event_date = event.event_date,
-        start_time = event.start_time,
-        description = event.description,
-        location_id = event.location_id,
-        organizer_id = event.location_id,
-        ticket_capacity = event.ticket_capacity,
+    db_event = Event(
+        title=event.title,
+        event_date=event.event_date,
+        start_time=event.start_time,
+        description=event.description,
+        location_id=event.location_id,
+        organizer_id=event.organizer_id,
+        ticket_capacity=event.ticket_capacity,
     )
     try:
         db.add(db_event)
