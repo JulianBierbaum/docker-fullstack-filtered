@@ -31,5 +31,6 @@ def init_db(session: Session) -> None:
             username=settings.FIRST_SUPERUSER,
             email=settings.FIRST_SUPERUSER_EMAIL,
             password=settings.FIRST_SUPERUSER_PASSWORD,
+            role=UserRole.ADMIN,
         )
-        _ = crud.create_user(db=session, user=user_in, role=UserRole.ADMIN)
+        _ = crud.create_user(db=session, user=user_in)

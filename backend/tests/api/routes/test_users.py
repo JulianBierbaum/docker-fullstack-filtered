@@ -5,10 +5,9 @@ def test_register_user(client_with_superuser: TestClient):
     user_data = {
         "username": "Test User1",
         "email": "user1@test.com",
-        "password": "Kennwort1"
+        "password": "Kennwort1",
+        "role": "visitor"
     }
 
     response = client_with_superuser.post("/api/users/register", json=user_data)
     assert response.status_code == 200
-
-

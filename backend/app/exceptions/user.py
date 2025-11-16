@@ -4,7 +4,7 @@ class DuplicateEmailException(Exception):
 
 
 class MissingUserException(Exception):
-    def __init__(self, user: str = None):
+    def __init__(self, user: str | None = None):
         if not user:
             msg = "User not found in the db."
         else:

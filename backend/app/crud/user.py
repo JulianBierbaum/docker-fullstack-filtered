@@ -7,7 +7,7 @@ from app.models.enums import UserRole
 from app.exceptions.user import DuplicateEmailException, MissingUserException
 
 
-def create_user(*, db: Session, user: UserCreate, role: UserRole):
+def create_user(*, db: Session, user: UserCreate):
     if get_user_by_email(db=db, email=user.email):
         raise DuplicateEmailException(email=user.email)
 
@@ -15,7 +15,7 @@ def create_user(*, db: Session, user: UserCreate, role: UserRole):
         username=user.username,
         email=user.email,
         hashed_password=get_password_hash(user.password),
-        role=role.value,
+        role=user.role.value,
     )
     try:
         db.add(db_user)
