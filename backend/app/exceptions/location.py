@@ -5,4 +5,4 @@ class DuplicateLocationNameException(Exception):
 
 class MissingLocationException(Exception):
     def __init__(self):
-        super().__init__(f"Location not found in the db.")
+        super().__init__("Location not found in the db.")

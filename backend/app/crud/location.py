@@ -2,13 +2,20 @@ from datetime import datetime, timezone
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.exceptions.location import DuplicateLocationNameException, MissingLocationException
+from app.exceptions.location import (
+    DuplicateLocationNameException,
+    MissingLocationException,
+)
 from app.models.location import Location
 from app.schemas.location import LocationCreate, LocationUpdate
 
 
 def get_location(*, db: Session, location_id: int):
-    db_location = db.query(Location).filter(Location.id == location_id, Location.deleted_at.is_(None)).first()
+    db_location = (
+        db.query(Location)
+        .filter(Location.id == location_id, Location.deleted_at.is_(None))
+        .first()
+    )
     if not db_location:
         raise MissingLocationException()
     return db_location
@@ -16,7 +23,9 @@ def get_location(*, db: Session, location_id: int):
 
 def get_location_by_name(*, db: Session, location_name: str):
     return (
-        db.query(Location).filter(Location.name == location_name, Location.deleted_at.is_(None)).first()
+        db.query(Location)
+        .filter(Location.name == location_name, Location.deleted_at.is_(None))
+        .first()
     )
 
 

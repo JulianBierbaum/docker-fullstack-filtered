@@ -1,6 +1,7 @@
 class MissingEventException(Exception):
     def __init__(self):
-        super().__init__(f"Location not found in the db.")
+        super().__init__("Location not found in the db.")
+
 
 class WrongRoleException(Exception):
     def __init__(self, user: str):

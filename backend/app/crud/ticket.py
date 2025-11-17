@@ -22,12 +22,21 @@ def get_ticket(*, db: Session, ticket_id: int):
 def get_tickets_by_event(*, db: Session, event_id: int):
     return db.query(Ticket).filter(Ticket.event_id == event_id).all()
 
+
 def get_available_tickets_by_event(*, db: Session, event_id: int):
-    return db.query(Ticket).filter(Ticket.event_id == event_id, Ticket.cancelled_at.is_not(None)).all()
+    return (
+        db.query(Ticket)
+        .filter(Ticket.event_id == event_id, Ticket.cancelled_at.is_not(None))
+        .all()
+    )
 
 
 def get_available_ticket_count_by_event(*, db: Session, event_id: int):
-    return db.query(Ticket).filter(Ticket.event_id == event_id, Ticket.cancelled_at.is_not(None)).count()
+    return (
+        db.query(Ticket)
+        .filter(Ticket.event_id == event_id, Ticket.cancelled_at.is_not(None))
+        .count()
+    )
 
 
 def create_ticket(*, db: Session, ticket: TicketCreate):
@@ -60,7 +69,7 @@ def update_ticket(*, db: Session, ticket: TicketUpdate, ticket_id: int):
 
         for key, value in update_data.items():
             setattr(db_ticket, key, value)
-        
+
         db.commit()
         db.refresh(db_ticket)
         return db_ticket

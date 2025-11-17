@@ -21,14 +21,14 @@ def get_event(*, db: Session, event_id: int):
 
 
 def get_events_by_location(*, db: Session, location_id: int):
-    return (
-        db.query(Event).filter(Event.location_id == location_id, Event.deleted_at.is_(None))
+    return db.query(Event).filter(
+        Event.location_id == location_id, Event.deleted_at.is_(None)
     )
 
 
 def get_event_by_organizer(*, db: Session, organizer_id: int):
-    return (
-        db.query(Event).filter(Event.organizer_id == organizer_id, Event.deleted_at.is_(None))
+    return db.query(Event).filter(
+        Event.organizer_id == organizer_id, Event.deleted_at.is_(None)
     )
 
 
@@ -37,7 +37,7 @@ def create_event(*, db: Session, event: EventCreate):
 
     if db_user.role != UserRole.ORGANIZER.value:
         raise WrongRoleException(user=db_user.username)
-    
+
     _ = get_location(db=db, location_id=event.location_id)
 
     db_event = Event(

@@ -7,8 +7,6 @@ from app.crud.user import get_user
 from app.crud.ticket import get_ticket
 from app.schemas.booking import BookingCreate, BookingUpdate
 from app.exceptions.booking import MissingBookingException
-from app.exceptions.user import MissingUserException
-from app.exceptions.ticket import MissingTicketException
 
 
 def get_all_bookings(db: Session):
@@ -16,21 +14,20 @@ def get_all_bookings(db: Session):
 
 
 def get_booking(*, db: Session, booking_number: int):
-    db_booking = db.query(Booking).filter(Booking.booking_number == booking_number).first()
+    db_booking = (
+        db.query(Booking).filter(Booking.booking_number == booking_number).first()
+    )
     if not db_booking:
         raise MissingBookingException()
     return db_booking
 
+
 def get_bookings_by_user(*, db: Session, user_id: int):
-    return (
-        db.query(Booking).filter(Booking.user_id == user_id).all()
-    )
+    return db.query(Booking).filter(Booking.user_id == user_id).all()
 
 
 def get_bookings_by_ticket(*, db: Session, ticket_id: int):
-    return (
-        db.query(Booking).filter(Booking.ticket_id == ticket_id).all()
-    )
+    return db.query(Booking).filter(Booking.ticket_id == ticket_id).all()
 
 
 def create_booking(*, db: Session, booking_data: BookingCreate):
@@ -50,6 +47,7 @@ def create_booking(*, db: Session, booking_data: BookingCreate):
     except IntegrityError:
         db.rollback()
         raise
+
 
 def update_booking(*, db: Session, booking_number: int, booking_data: BookingUpdate):
     db_booking = get_booking(db=db, booking_number=booking_number)
@@ -71,6 +69,7 @@ def update_booking(*, db: Session, booking_number: int, booking_data: BookingUpd
     except IntegrityError:
         db.rollback()
         raise
+
 
 def cancel_booking(*, db: Session, booking_number: int):
     db_booking = get_booking(db=db, booking_number=booking_number)

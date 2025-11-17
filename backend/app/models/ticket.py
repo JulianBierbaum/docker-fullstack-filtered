@@ -9,6 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from app.database.session import Base
 
+
 class Ticket(Base):
     __tablename__ = "tickets"
 
