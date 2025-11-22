@@ -8,6 +8,7 @@ from app.schemas.event import EventCreate, EventUpdate
 from app.crud.location import get_location
 from app.crud.user import get_user
 from app.models.enums import UserRole
+from app.exceptions.db import DatabaseException
 
 
 def get_events(db: Session):
@@ -56,7 +57,7 @@ def create_event(*, db: Session, event: EventCreate):
         return db_event
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))
 
 
 def update_event(*, db: Session, event: EventUpdate, event_id: int):
@@ -96,4 +97,4 @@ def delete_event(*, db: Session, event_id: int):
         return db_event
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))

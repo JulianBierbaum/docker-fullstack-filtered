@@ -6,6 +6,7 @@ from app.exceptions.ticket import MissingTicketException
 from app.models.ticket import Ticket
 from app.schemas.ticket import TicketCreate, TicketUpdate
 from app.crud.event import get_event
+from app.exceptions.db import DatabaseException
 
 
 def get_tickets(db: Session):
@@ -55,7 +56,7 @@ def create_ticket(*, db: Session, ticket: TicketCreate):
         return db_ticket
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))
 
 
 def update_ticket(*, db: Session, ticket: TicketUpdate, ticket_id: int):
@@ -75,7 +76,7 @@ def update_ticket(*, db: Session, ticket: TicketUpdate, ticket_id: int):
         return db_ticket
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))
 
 
 def cancel_ticket(*, db: Session, ticket_id: int):
@@ -89,4 +90,4 @@ def cancel_ticket(*, db: Session, ticket_id: int):
         return db_ticket
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))

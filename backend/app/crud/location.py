@@ -8,6 +8,7 @@ from app.exceptions.location import (
 )
 from app.models.location import Location
 from app.schemas.location import LocationCreate, LocationUpdate
+from app.exceptions.db import DatabaseException
 
 
 def get_location(*, db: Session, location_id: int):
@@ -49,7 +50,7 @@ def create_location(*, db: Session, location: LocationCreate):
         return db_location
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))
 
 
 def update_location(*, db: Session, location: LocationUpdate, location_id: int):
@@ -69,7 +70,7 @@ def update_location(*, db: Session, location: LocationUpdate, location_id: int):
         return db_location
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))
 
 
 def delete_location(*, db: Session, location_id: int):
@@ -86,4 +87,4 @@ def delete_location(*, db: Session, location_id: int):
         return db_location
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))

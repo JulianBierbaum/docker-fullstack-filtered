@@ -7,6 +7,7 @@ from app.crud.user import get_user
 from app.crud.ticket import get_ticket
 from app.schemas.booking import BookingCreate, BookingUpdate
 from app.exceptions.booking import MissingBookingException
+from app.exceptions.db import DatabaseException
 
 
 def get_all_bookings(db: Session):
@@ -44,9 +45,9 @@ def create_booking(*, db: Session, booking_data: BookingCreate):
         db.commit()
         db.refresh(db_booking)
         return db_booking
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise
+        raise DatabaseException(str(e))
 
 
 def update_booking(*, db: Session, booking_number: int, booking_data: BookingUpdate):
@@ -66,9 +67,9 @@ def update_booking(*, db: Session, booking_number: int, booking_data: BookingUpd
         db.commit()
         db.refresh(db_booking)
         return db_booking
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise
+        raise DatabaseException(str(e))
 
 
 def cancel_booking(*, db: Session, booking_number: int):
@@ -80,6 +81,6 @@ def cancel_booking(*, db: Session, booking_number: int):
         db.commit()
         db.refresh(db_booking)
         return db_booking
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise
+        raise DatabaseException(str(e))

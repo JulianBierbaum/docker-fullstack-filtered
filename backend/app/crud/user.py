@@ -4,6 +4,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import get_password_hash, verify_password
 from app.exceptions.user import DuplicateEmailException, MissingUserException
+from app.exceptions.db import DatabaseException
 
 
 def create_user(*, db: Session, user: UserCreate):
@@ -23,7 +24,7 @@ def create_user(*, db: Session, user: UserCreate):
         return db_user
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))
 
 
 def get_user(*, db: Session, user_id: int):
@@ -69,12 +70,8 @@ def update_user(*, db: Session, user: UserUpdate, user_id: int):
         if "role" in update_data:
             update_data["role"] = update_data["role"].value
 
-        for key, value in update_data.items():
-            setattr(db_user, key, value)
-
-        db.commit()
         db.refresh(db_user)
         return db_user
     except IntegrityError as e:
         db.rollback()
-        raise e
+        raise DatabaseException(str(e))
