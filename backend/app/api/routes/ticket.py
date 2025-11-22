@@ -1,8 +1,9 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from app.crud import ticket as crud
 from app.schemas import ticket as schemas
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, roles_required
+from app.models.enums import UserRole
 from app.exceptions.ticket import MissingTicketException
 from app.exceptions.db import DatabaseException
 
@@ -10,7 +11,7 @@ from app.exceptions.db import DatabaseException
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 
-@router.get("/", response_model=List[schemas.Ticket])
+@router.get("/", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=List[schemas.Ticket])
 def get_tickets(db: SessionDep):
     return crud.get_tickets(db=db)
 
@@ -36,7 +37,7 @@ def get_ticket(db: SessionDep, ticket_id: int):
         )
 
 
-@router.put("/{ticket_id}", response_model=schemas.Ticket)
+@router.put("/{ticket_id}", dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))], response_model=schemas.Ticket)
 def update_ticket(db: SessionDep, ticket_id: int, ticket: schemas.TicketUpdate):
     try:
         return crud.update_ticket(db=db, ticket_id=ticket_id, ticket=ticket)
