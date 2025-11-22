@@ -16,9 +16,10 @@ def get_events(db: Session):
 
 
 def get_event(*, db: Session, event_id: int):
-    return (
-        db.query(Event).filter(Event.id == event_id, Event.deleted_at.is_(None)).first()
-    )
+    db_event = db.query(Event).filter(Event.id == event_id, Event.deleted_at.is_(None)).first()
+    if not db_event:
+        raise MissingEventException()
+    return db_event
 
 
 def get_events_by_location(*, db: Session, location_id: int):
@@ -63,9 +64,6 @@ def create_event(*, db: Session, event: EventCreate):
 def update_event(*, db: Session, event: EventUpdate, event_id: int):
     db_event = get_event(db=db, event_id=event_id)
 
-    if not db_event:
-        raise MissingEventException()
-
     update_data = event.model_dump(exclude_unset=True)
 
     if "location_id" in update_data:
@@ -85,8 +83,6 @@ def update_event(*, db: Session, event: EventUpdate, event_id: int):
 
 def delete_event(*, db: Session, event_id: int):
     db_event = get_event(db=db, event_id=event_id)
-    if not db_event:
-        raise MissingEventException()
 
     try:
         db_event.deleted_at = datetime.now(timezone.utc)
