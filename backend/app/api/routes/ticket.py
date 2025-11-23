@@ -5,13 +5,18 @@ from app.schemas import ticket as schemas
 from app.api.deps import SessionDep, roles_required
 from app.models.enums import UserRole
 from app.exceptions.ticket import MissingTicketException
+from app.exceptions.event import MissingEventException
 from app.exceptions.db import DatabaseException
 
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 
-@router.get("/", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=List[schemas.Ticket])
+@router.get(
+    "/",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=List[schemas.Ticket],
+)
 def get_tickets(db: SessionDep):
     return crud.get_tickets(db=db)
 
@@ -20,6 +25,11 @@ def get_tickets(db: SessionDep):
 def create_ticket(db: SessionDep, ticket: schemas.TicketCreate):
     try:
         return crud.create_ticket(db=db, ticket=ticket)
+    except MissingEventException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -32,19 +42,19 @@ def get_ticket(db: SessionDep, ticket_id: int):
     try:
         return crud.get_ticket(db=db, ticket_id=ticket_id)
     except MissingTicketException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.put("/{ticket_id}", dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))], response_model=schemas.Ticket)
+@router.put(
+    "/{ticket_id}",
+    dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))],
+    response_model=schemas.Ticket,
+)
 def update_ticket(db: SessionDep, ticket_id: int, ticket: schemas.TicketUpdate):
     try:
         return crud.update_ticket(db=db, ticket_id=ticket_id, ticket=ticket)
     except MissingTicketException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -57,9 +67,7 @@ def cancel_ticket(db: SessionDep, ticket_id: int):
     try:
         return crud.cancel_ticket(db=db, ticket_id=ticket_id)
     except MissingTicketException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

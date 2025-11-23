@@ -16,7 +16,11 @@ def get_events(db: SessionDep):
     return crud.get_events(db=db)
 
 
-@router.post("/", dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))], response_model=schemas.Event)
+@router.post(
+    "/",
+    dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))],
+    response_model=schemas.Event,
+)
 def create_event(db: SessionDep, event: schemas.EventCreate):
     try:
         return crud.create_event(db=db, event=event)
@@ -37,19 +41,19 @@ def get_event(db: SessionDep, event_id: int):
     try:
         return crud.get_event(db=db, event_id=event_id)
     except MissingEventException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.put("/{event_id}", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Event)
+@router.put(
+    "/{event_id}",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.Event,
+)
 def update_event(db: SessionDep, event_id: int, event: schemas.EventUpdate):
     try:
         return crud.update_event(db=db, event_id=event_id, event=event)
     except MissingEventException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except WrongRoleException as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -62,14 +66,16 @@ def update_event(db: SessionDep, event_id: int, event: schemas.EventUpdate):
         )
 
 
-@router.delete("/{event_id}", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Event)
+@router.delete(
+    "/{event_id}",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.Event,
+)
 def delete_event(db: SessionDep, event_id: int):
     try:
         return crud.delete_event(db=db, event_id=event_id)
     except MissingEventException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

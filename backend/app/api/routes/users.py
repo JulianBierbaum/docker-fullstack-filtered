@@ -40,9 +40,7 @@ def update_user(db: SessionDep, user: schemas.UserUpdate, user_id: int):
     try:
         return crud.update_user(db=db, user=user, user_id=user_id)
     except MissingUserException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DuplicateEmailException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -60,9 +58,7 @@ def get_user(db: SessionDep, user_id: int):
     try:
         return crud.get_user(db=db, user_id=user_id)
     except MissingUserException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.get(

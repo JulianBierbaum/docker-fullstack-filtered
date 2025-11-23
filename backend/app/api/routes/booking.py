@@ -5,6 +5,8 @@ from app.schemas import booking as schemas
 from app.api.deps import SessionDep, roles_required
 from app.models.enums import UserRole
 from app.exceptions.booking import MissingBookingException
+from app.exceptions.user import MissingUserException
+from app.exceptions.ticket import MissingTicketException
 from app.exceptions.db import DatabaseException
 
 
@@ -20,6 +22,16 @@ def get_bookings(db: SessionDep):
 def create_booking(db: SessionDep, booking: schemas.BookingCreate):
     try:
         return crud.create_booking(db=db, booking_data=booking)
+    except MissingUserException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except MissingTicketException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -27,29 +39,26 @@ def create_booking(db: SessionDep, booking: schemas.BookingCreate):
         )
 
 
-@router.delete("/{event_id}", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Booking)
 @router.get("/{booking_number}", response_model=schemas.Booking)
 def get_booking(db: SessionDep, booking_number: int):
     try:
         return crud.get_booking(db=db, booking_number=booking_number)
     except MissingBookingException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.put("/{booking_number}", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Booking)
-def update_booking(
-    db: SessionDep, booking_number: int, booking: schemas.BookingUpdate
-):
+@router.put(
+    "/{booking_number}",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.Booking,
+)
+def update_booking(db: SessionDep, booking_number: int, booking: schemas.BookingUpdate):
     try:
         return crud.update_booking(
             db=db, booking_number=booking_number, booking_data=booking
         )
     except MissingBookingException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -57,14 +66,16 @@ def update_booking(
         )
 
 
-@router.delete("/{booking_number}", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Booking)
+@router.delete(
+    "/{booking_number}",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.Booking,
+)
 def cancel_booking(db: SessionDep, booking_number: int):
     try:
         return crud.cancel_booking(db=db, booking_number=booking_number)
     except MissingBookingException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

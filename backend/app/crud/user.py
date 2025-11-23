@@ -70,6 +70,11 @@ def update_user(*, db: Session, user: UserUpdate, user_id: int):
         if "role" in update_data:
             update_data["role"] = update_data["role"].value
 
+        for key, value in update_data.items():
+            setattr(db_user, key, value)
+
+        db.add(db_user)
+        db.commit()
         db.refresh(db_user)
         return db_user
     except IntegrityError as e:

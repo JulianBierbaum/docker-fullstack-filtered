@@ -133,9 +133,27 @@ def test_booking(db, test_visitor, test_ticket):
 
 @pytest.fixture
 def client_with_superuser(client, test_superuser):
-    """Override `get_current_active_superuser` to return an admin user."""
+    """Override `get_current_user` to return an admin user."""
     def override_get_current_user():
         return test_superuser  
+    
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    return client
+
+@pytest.fixture
+def client_with_organizer(client, test_organizer):
+    """Override `get_current_user` to return an organizer user."""
+    def override_get_current_user():
+        return test_organizer
+    
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    return client
+
+@pytest.fixture
+def client_with_visitor(client, test_visitor):
+    """Override `get_current_user` to return a visitor user."""
+    def override_get_current_user():
+        return test_visitor
     
     app.dependency_overrides[get_current_user] = override_get_current_user
     return client

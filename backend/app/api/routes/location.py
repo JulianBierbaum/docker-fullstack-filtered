@@ -19,7 +19,11 @@ def get_locations(db: SessionDep):
     return crud.get_locations(db=db)
 
 
-@router.post("/", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Location)
+@router.post(
+    "/",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.Location,
+)
 def create_location(db: SessionDep, location: schemas.LocationCreate):
     try:
         return crud.create_location(db=db, location=location)
@@ -40,23 +44,19 @@ def get_location(db: SessionDep, location_id: int):
     try:
         return crud.get_location(db=db, location_id=location_id)
     except MissingLocationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.put("/{location_id}", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Location)
-def update_location(
-    db: SessionDep, location_id: int, location: schemas.LocationUpdate
-):
+@router.put(
+    "/{location_id}",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.Location,
+)
+def update_location(db: SessionDep, location_id: int, location: schemas.LocationUpdate):
     try:
-        return crud.update_location(
-            db=db, location_id=location_id, location=location
-        )
+        return crud.update_location(db=db, location_id=location_id, location=location)
     except MissingLocationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -64,14 +64,16 @@ def update_location(
         )
 
 
-@router.delete("/{location_id}", dependencies=[Depends(roles_required([UserRole.ADMIN]))], response_model=schemas.Location)
+@router.delete(
+    "/{location_id}",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.Location,
+)
 def delete_location(db: SessionDep, location_id: int):
     try:
         return crud.delete_location(db=db, location_id=location_id)
     except MissingLocationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -16,7 +16,9 @@ def get_events(db: Session):
 
 
 def get_event(*, db: Session, event_id: int):
-    db_event = db.query(Event).filter(Event.id == event_id, Event.deleted_at.is_(None)).first()
+    db_event = (
+        db.query(Event).filter(Event.id == event_id, Event.deleted_at.is_(None)).first()
+    )
     if not db_event:
         raise MissingEventException()
     return db_event

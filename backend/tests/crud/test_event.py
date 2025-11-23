@@ -24,8 +24,8 @@ def test_get_event_success(db: Session, test_event):
 
 
 def test_get_event_not_found(db: Session):
-    result = get_event(db=db, event_id=999)
-    assert result is None
+    with pytest.raises(MissingEventException):
+        get_event(db=db, event_id=999)
 
 
 def test_get_events(db: Session, test_event):
@@ -106,7 +106,8 @@ def test_delete_event_success(db: Session, test_event):
     result = delete_event(db=db, event_id=test_event.id)
     assert result is not None
     assert result.deleted_at is not None
-    assert get_event(db=db, event_id=test_event.id) is None
+    with pytest.raises(MissingEventException):
+        get_event(db=db, event_id=test_event.id)
 
 
 def test_delete_event_not_found(db: Session):
