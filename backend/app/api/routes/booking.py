@@ -2,8 +2,9 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status, Depends
 from app.crud import booking as crud
 from app.schemas import booking as schemas
-from app.api.deps import SessionDep, roles_required
+from app.api.deps import SessionDep, roles_required, get_current_user
 from app.models.enums import UserRole
+from app.models.user import User
 from app.exceptions.booking import MissingBookingException
 from app.exceptions.user import MissingUserException
 from app.exceptions.ticket import MissingTicketException
@@ -19,7 +20,7 @@ def get_bookings(db: SessionDep):
 
 
 @router.post("/", response_model=schemas.Booking)
-def create_booking(db: SessionDep, booking: schemas.BookingCreate):
+def create_booking(db: SessionDep, booking: schemas.BookingCreate, current_user: User = Depends(get_current_user)):
     try:
         return crud.create_booking(db=db, booking_data=booking)
     except MissingUserException as e:
@@ -49,10 +50,10 @@ def get_booking(db: SessionDep, booking_number: int):
 
 @router.put(
     "/{booking_number}",
-    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    dependencies=[Depends(roles_required([UserRole.ADMIN, UserRole.ORGANIZER]))],
     response_model=schemas.Booking,
 )
-def update_booking(db: SessionDep, booking_number: int, booking: schemas.BookingUpdate):
+def update_booking(db: SessionDep, booking_number: int, booking: schemas.BookingUpdate, current_user: User = Depends(get_current_user)):
     try:
         return crud.update_booking(
             db=db, booking_number=booking_number, booking_data=booking
@@ -68,7 +69,7 @@ def update_booking(db: SessionDep, booking_number: int, booking: schemas.Booking
 
 @router.delete(
     "/{booking_number}",
-    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    dependencies=[Depends(roles_required([UserRole.ADMIN, UserRole.ORGANIZER]))],
     response_model=schemas.Booking,
 )
 def cancel_booking(db: SessionDep, booking_number: int):

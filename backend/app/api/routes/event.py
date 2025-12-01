@@ -2,8 +2,9 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status, Depends
 from app.crud import event as crud
 from app.schemas import event as schemas
-from app.api.deps import SessionDep, roles_required
+from app.api.deps import SessionDep, roles_required, get_current_user
 from app.models.enums import UserRole
+from app.models.user import User
 from app.exceptions.event import MissingEventException, WrongRoleException
 from app.exceptions.db import DatabaseException
 
@@ -21,7 +22,7 @@ def get_events(db: SessionDep):
     dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))],
     response_model=schemas.Event,
 )
-def create_event(db: SessionDep, event: schemas.EventCreate):
+def create_event(db: SessionDep, event: schemas.EventCreate, current_user: User = Depends(get_current_user)):
     try:
         return crud.create_event(db=db, event=event)
     except WrongRoleException as e:
@@ -46,10 +47,10 @@ def get_event(db: SessionDep, event_id: int):
 
 @router.put(
     "/{event_id}",
-    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    dependencies=[Depends(roles_required([UserRole.ADMIN, UserRole.ORGANIZER]))],
     response_model=schemas.Event,
 )
-def update_event(db: SessionDep, event_id: int, event: schemas.EventUpdate):
+def update_event(db: SessionDep, event_id: int, event: schemas.EventUpdate, current_user: User = Depends(get_current_user)):
     try:
         return crud.update_event(db=db, event_id=event_id, event=event)
     except MissingEventException as e:
@@ -68,7 +69,7 @@ def update_event(db: SessionDep, event_id: int, event: schemas.EventUpdate):
 
 @router.delete(
     "/{event_id}",
-    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    dependencies=[Depends(roles_required([UserRole.ADMIN, UserRole.ORGANIZER]))],
     response_model=schemas.Event,
 )
 def delete_event(db: SessionDep, event_id: int):
