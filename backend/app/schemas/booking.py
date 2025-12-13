@@ -8,8 +8,9 @@ class BookingBase(BaseModel):
     ticket_id: int
 
 
-class BookingCreate(BookingBase):
-    pass
+class BookingCreate(BaseModel):
+    ticket_id: int
+    user_id: Optional[int] = None
 
 
 class BookingUpdate(BaseModel):

@@ -2,13 +2,19 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.crud import user as crud
 from app.schemas import user as schemas
-from app.api.deps import SessionDep, roles_required
+from app.api.deps import SessionDep, roles_required, get_current_user
 from app.models.enums import UserRole
+from app.models.user import User
 from app.exceptions.user import DuplicateEmailException, MissingUserException
 from app.exceptions.db import DatabaseException
 
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("/me", response_model=schemas.User)
+def get_user_me(current_user: User = Depends(get_current_user)):
+    return current_user
 
 
 @router.post(

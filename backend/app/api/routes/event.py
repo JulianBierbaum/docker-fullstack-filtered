@@ -17,6 +17,11 @@ def get_events(db: SessionDep):
     return crud.get_events(db=db)
 
 
+@router.get("/me", response_model=List[schemas.Event])
+def get_events_me(db: SessionDep, current_user: User = Depends(get_current_user)):
+    return crud.get_event_by_organizer(db=db, organizer_id=current_user.id)
+
+
 @router.post(
     "/",
     dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))],
@@ -24,6 +29,11 @@ def get_events(db: SessionDep):
 )
 def create_event(db: SessionDep, event: schemas.EventCreate, current_user: User = Depends(get_current_user)):
     try:
+        if current_user.role != UserRole.ADMIN.value:
+            event.organizer_id = current_user.id
+        elif event.organizer_id is None:
+            event.organizer_id = current_user.id
+            
         return crud.create_event(db=db, event=event)
     except WrongRoleException as e:
         raise HTTPException(
@@ -50,7 +60,7 @@ def get_event(db: SessionDep, event_id: int):
     dependencies=[Depends(roles_required([UserRole.ADMIN, UserRole.ORGANIZER]))],
     response_model=schemas.Event,
 )
-def update_event(db: SessionDep, event_id: int, event: schemas.EventUpdate, current_user: User = Depends(get_current_user)):
+def update_event(db: SessionDep, event_id: int, event: schemas.EventUpdate):
     try:
         return crud.update_event(db=db, event_id=event_id, event=event)
     except MissingEventException as e:

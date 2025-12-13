@@ -2,12 +2,12 @@ from fastapi import status
 from app.models.booking import Booking
 from fastapi.testclient import TestClient
 
-def test_create_booking_success(client: TestClient, db, test_visitor, test_ticket):
+def test_create_booking_success(client_with_visitor: TestClient, db, test_visitor, test_ticket):
     data = {
         "user_id": test_visitor.id,
         "ticket_id": test_ticket.id
     }
-    response = client.post("/api/bookings/", json=data)
+    response = client_with_visitor.post("/api/bookings/", json=data)
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["user_id"] == data["user_id"]
     assert response.json()["ticket_id"] == data["ticket_id"]
@@ -15,21 +15,12 @@ def test_create_booking_success(client: TestClient, db, test_visitor, test_ticke
     booking = db.query(Booking).filter(Booking.user_id == data["user_id"], Booking.ticket_id == data["ticket_id"]).first()
     assert booking is not None
 
-def test_create_booking_invalid_user_id(client: TestClient, test_ticket):
-    data = {
-        "user_id": 9999,
-        "ticket_id": test_ticket.id
-    }
-    response = client.post("/api/bookings/", json=data)
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "User not found in the db." in response.json()["detail"]
-
-def test_create_booking_invalid_ticket_id(client: TestClient, test_visitor):
+def test_create_booking_invalid_ticket_id(client_with_visitor: TestClient, test_visitor):
     data = {
         "user_id": test_visitor.id,
         "ticket_id": 9999
     }
-    response = client.post("/api/bookings/", json=data)
+    response = client_with_visitor.post("/api/bookings/", json=data)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Ticket not found in the db." in response.json()["detail"]
 

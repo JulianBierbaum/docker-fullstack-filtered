@@ -13,8 +13,14 @@ class EventBase(BaseModel):
     ticket_capacity: int
 
 
-class EventCreate(EventBase):
-    pass
+class EventCreate(BaseModel):
+    title: str = Field(..., min_length=5, max_length=100)
+    event_date: date
+    start_time: time
+    description: Optional[str] = None
+    location_id: int
+    organizer_id: Optional[int] = None
+    ticket_capacity: int
 
 
 class EventUpdate(BaseModel):

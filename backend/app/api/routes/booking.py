@@ -19,9 +19,15 @@ def get_bookings(db: SessionDep):
     return crud.get_all_bookings(db=db)
 
 
+@router.get("/me", response_model=List[schemas.Booking])
+def get_bookings_me(db: SessionDep, current_user: User = Depends(get_current_user)):
+    return crud.get_bookings_by_user(db=db, user_id=current_user.id)
+
+
 @router.post("/", response_model=schemas.Booking)
 def create_booking(db: SessionDep, booking: schemas.BookingCreate, current_user: User = Depends(get_current_user)):
     try:
+        booking.user_id = current_user.id
         return crud.create_booking(db=db, booking_data=booking)
     except MissingUserException as e:
         raise HTTPException(
@@ -53,7 +59,7 @@ def get_booking(db: SessionDep, booking_number: int):
     dependencies=[Depends(roles_required([UserRole.ADMIN, UserRole.ORGANIZER]))],
     response_model=schemas.Booking,
 )
-def update_booking(db: SessionDep, booking_number: int, booking: schemas.BookingUpdate, current_user: User = Depends(get_current_user)):
+def update_booking(db: SessionDep, booking_number: int, booking: schemas.BookingUpdate):
     try:
         return crud.update_booking(
             db=db, booking_number=booking_number, booking_data=booking

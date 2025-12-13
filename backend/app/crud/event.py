@@ -39,7 +39,7 @@ def get_event_by_organizer(*, db: Session, organizer_id: int):
 def create_event(*, db: Session, event: EventCreate):
     db_user = get_user(db=db, user_id=event.organizer_id)
 
-    if db_user.role != UserRole.ORGANIZER.value:
+    if db_user.role != UserRole.ORGANIZER.value and db_user.role != UserRole.ADMIN.value:
         raise WrongRoleException(user=db_user.username)
 
     _ = get_location(db=db, location_id=event.location_id)
