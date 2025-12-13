@@ -69,7 +69,7 @@ def get_user(db: SessionDep, user_id: int):
 
 @router.get(
     "/",
-    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    #dependencies=[Depends(roles_required([UserRole.ADMIN]))],
     response_model=List[schemas.User],
 )
 def get_users(db: SessionDep):
