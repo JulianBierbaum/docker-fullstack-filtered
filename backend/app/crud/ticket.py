@@ -33,11 +33,15 @@ def get_available_tickets_by_event(*, db: Session, event_id: int):
 
 
 def get_available_ticket_count_by_event(*, db: Session, event_id: int):
-    return (
+    event = get_event(db=db, event_id=event_id)
+    
+    sold_count = (
         db.query(Ticket)
-        .filter(Ticket.event_id == event_id, Ticket.cancelled_at.is_not(None))
+        .filter(Ticket.event_id == event_id, Ticket.cancelled_at.is_(None))
         .count()
     )
+    
+    return event.ticket_capacity - sold_count
 
 
 def create_ticket(*, db: Session, ticket: TicketCreate):

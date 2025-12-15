@@ -41,7 +41,6 @@ def create_location(*, db: Session, location: LocationCreate):
     db_location = Location(
         name=location.name,
         address=location.address,
-        capacity=location.capacity,
     )
     try:
         db.add(db_location)

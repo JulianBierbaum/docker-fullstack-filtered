@@ -82,7 +82,6 @@ def test_location(db):
     location = Location(
         name="Test Location",
         address="123 Test Street",
-        capacity=100,
     )
     db.add(location)
     db.commit()

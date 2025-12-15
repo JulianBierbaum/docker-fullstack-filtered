@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '@/app/api'
 import { Input } from '@/components/ui/input'
 import {
   Table,
@@ -11,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+
+import ProtectedRoute from '../protectedRoute'
 
 
 import {
@@ -25,122 +27,149 @@ import {
 import { Button } from '@/components/ui/button'
 
 
-interface User {
-  id: number
-  username: string
-  email: string
+interface Event {
+  id: number
+  title: string
+  event_date: string
+  start_time: string
+  description?: string
+  ticket_capacity: number
+  location_id: number
+  organizer_id: number
 }
 
 export default function DashboardPage() {
-  const [search, setSearch] = useState('')
-  const [users, setUsers] = useState<User[]>([])
+  const [events, setEvents] = useState<Event[]>([])
+  const [locationNames, setLocationNames] = useState<Record<number, string>>({})
+  const [organizerNames, setOrganizerNames] = useState<Record<number, string>>({})
   const [loading, setLoading] = useState(true)
 
-  const [selectedUser, setSelectedUser] = useState<User>();
+  const [selectedEvent, setSelectedEvent] = useState<Event>();
   const [open, setOpen] = useState(false);
 
-  const openDialog = (user: User) => {
-    setSelectedUser({ ...user });
+  const openDialog = (event: Event) => {
+    setSelectedEvent({ ...event });
     setOpen(true);
   };
 
   const handleSave = () => {
-    if (!selectedUser) return;
-    setUsers((prev) =>
-      prev.map((u) => (u.id === selectedUser.id ? selectedUser : u))
+    if (!selectedEvent) return;
+    setEvents((prev) =>
+      prev.map((e) => (e.id === selectedEvent.id ? selectedEvent : e))
     );
     setOpen(false);
   };
 
 
-  const filteredData = users.filter((item) =>
-    item.username.toLowerCase().includes(search.toLowerCase()) ||
-    item.email.toLowerCase().includes(search.toLowerCase())
-  )
 
 
-useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const { data } = await axios.get<User[]>('http://localhost/api/users/')
-        setUsers(data)
-      } catch (error) {
-        console.error('Error fetching users:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
 
-    fetchUsers()
-  }, [])
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const { data: eventsData } = await api.get<Event[]>('/events/')
+        setEvents(eventsData)
+
+        // Extract unique IDs
+        const locationIds = Array.from(new Set(eventsData.map((e) => e.location_id)))
+        const organizerIds = Array.from(new Set(eventsData.map((e) => e.organizer_id)))
+
+        // Fetch details
+        const locationPromises = locationIds.map((id) =>
+          api.get(`/locations/${id}`).then((res) => ({ id, name: res.data.name }))
+        )
+        const organizerPromises = organizerIds.map((id) =>
+          api.get(`/users/${id}`).then((res) => ({ id, name: res.data.username }))
+        )
+
+        const locations = await Promise.all(locationPromises)
+        const organizers = await Promise.all(organizerPromises)
+
+        // Create lookup maps
+        const locMap: Record<number, string> = {}
+        locations.forEach((l) => (locMap[l.id] = l.name))
+        setLocationNames(locMap)
+
+        const orgMap: Record<number, string> = {}
+        organizers.forEach((o) => (orgMap[o.id] = o.name))
+        setOrganizerNames(orgMap)
+
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [])
 
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+    <ProtectedRoute>
+      <div className="p-6 space-y-6">
+        <h1 className="text-2xl font-bold">Events Dashboard</h1>
 
-      <Input
-        placeholder="Search by name or email..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="max-w-sm"
-      />
-
-      <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-        <Table>
-          <TableHeader className="bg-gray-100">
-            <TableRow>
-              <TableHead className="text-gray-700">ID</TableHead>
-              <TableHead className="text-gray-700">Name</TableHead>
-              <TableHead className="text-gray-700">Email</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user, index) => (
-                <TableRow
-                key={user.id}
-                className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50 cursor-pointer'}
-                onClick={() => openDialog(user)}
-                >
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.email}</TableCell>
+        <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+          <Table>
+            <TableHeader className="bg-gray-100">
+              <TableRow>
+                <TableHead className="text-gray-700">Title</TableHead>
+                <TableHead className="text-gray-700">Event Date</TableHead>
+                <TableHead className="text-gray-700">Start Time</TableHead>
+                <TableHead className="text-gray-700">Location</TableHead>
+                <TableHead className="text-gray-700">Organizer</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {events.map((event, index) => (
+                  <TableRow
+                  key={event.id}
+                  className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50 cursor-pointer'}
+                  onClick={() => openDialog(event)}
+                  >
+                  <TableCell>{event.title}</TableCell>
+                  <TableCell>{event.event_date}</TableCell>
+                  <TableCell>{event.start_time}</TableCell>
+                  <TableCell>{locationNames[event.location_id] || event.location_id}</TableCell>
+                  <TableCell>{organizerNames[event.organizer_id] || event.organizer_id}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Event</DialogTitle>
+            </DialogHeader>
+            {selectedEvent && (
+              <div className="space-y-4 mt-4">
+                <Input
+                  value={selectedEvent.title}
+                  onChange={(e) =>
+                    setSelectedEvent({ ...selectedEvent, title: e.target.value })
+                  }
+                  placeholder="Event Title"
+                />
+                <Input
+                  value={selectedEvent.description || ''}
+                  onChange={(e) =>
+                    setSelectedEvent({ ...selectedEvent, description: e.target.value })
+                  }
+                  placeholder="Description"
+                />
+              </div>
+            )}
+            <DialogFooter className="mt-4">
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4 mt-4">
-              <Input
-                value={selectedUser.username}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, username: e.target.value })
-                }
-                placeholder="Username"
-              />
-              <Input
-                value={selectedUser.email}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, email: e.target.value })
-                }
-                placeholder="Email"
-              />
-            </div>
-          )}
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </ProtectedRoute>
   )
 }

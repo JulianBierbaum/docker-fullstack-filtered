@@ -48,10 +48,10 @@ def test_get_available_tickets_by_event(db: Session, test_ticket, test_event):
 
 def test_get_available_ticket_count_by_event(db: Session, test_ticket, test_event):
     result = get_available_ticket_count_by_event(db=db, event_id=test_event.id)
-    assert result == 0
+    assert result == 49
     cancel_ticket(db=db, ticket_id=test_ticket.id)
     result = get_available_ticket_count_by_event(db=db, event_id=test_event.id)
-    assert result == 1
+    assert result == 50
 
 
 def test_create_ticket_success(db: Session, test_event):

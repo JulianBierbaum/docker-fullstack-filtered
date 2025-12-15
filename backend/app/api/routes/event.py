@@ -17,11 +17,9 @@ def get_events(
     db: SessionDep,
     skip: int = 0,
     limit: int = 100,
-    title: str = None,
-    location_id: int = None,
 ):
     return crud.get_events(
-        db=db, skip=skip, limit=limit, title=title, location_id=location_id
+        db=db, skip=skip, limit=limit
     )
 
 

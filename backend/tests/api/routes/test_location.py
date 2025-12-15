@@ -5,8 +5,7 @@ from fastapi.testclient import TestClient
 def test_create_location_success_admin(client_with_superuser: TestClient, db):
     data = {
         "name": "Admin Created Location",
-        "address": "Admin Street 1",
-        "capacity": 200
+        "address": "Admin Street 1"
     }
     response = client_with_superuser.post("/api/locations/", json=data)
     assert response.status_code == status.HTTP_200_OK
@@ -18,8 +17,7 @@ def test_create_location_success_admin(client_with_superuser: TestClient, db):
 def test_create_location_unauthorized_visitor(client_with_visitor: TestClient):
     data = {
         "name": "Visitor Attempt Location",
-        "address": "Visitor Street 1",
-        "capacity": 10
+        "address": "Visitor Street 1"
     }
     response = client_with_visitor.post("/api/locations/", json=data)
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -28,8 +26,7 @@ def test_create_location_unauthorized_visitor(client_with_visitor: TestClient):
 def test_create_location_duplicate_name(client_with_superuser: TestClient, test_location):
     data = {
         "name": test_location.name,
-        "address": "Duplicate Street 1",
-        "capacity": 150
+        "address": "Duplicate Street 1"
     }
     response = client_with_superuser.post("/api/locations/", json=data)
     assert response.status_code == status.HTTP_400_BAD_REQUEST

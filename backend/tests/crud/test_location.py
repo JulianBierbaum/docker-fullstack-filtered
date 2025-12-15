@@ -47,30 +47,28 @@ def test_get_locations(db: Session, test_location):
 
 def test_create_location_success(db: Session):
     location_data = LocationCreate(
-        name="New Location", address="456 New Street", capacity=200
+        name="New Location", address="456 New Street"
     )
     result = create_location(db=db, location=location_data)
     assert result is not None
     assert result.name == "New Location"
-    assert result.capacity == 200
 
 
 def test_create_duplicate_location_name(db: Session, test_location):
     location_data = LocationCreate(
-        name=test_location.name, address="789 Duplicate Street", capacity=300
+        name=test_location.name, address="789 Duplicate Street"
     )
     with pytest.raises(DuplicateLocationNameException):
         create_location(db=db, location=location_data)
 
 
 def test_update_location_success(db: Session, test_location):
-    update_data = LocationUpdate(name="Updated Location", capacity=150)
+    update_data = LocationUpdate(name="Updated Location")
     result = update_location(
         db=db, location=update_data, location_id=test_location.id
     )
     assert result is not None
     assert result.name == "Updated Location"
-    assert result.capacity == 150
 
 
 def test_update_location_not_found(db: Session):
