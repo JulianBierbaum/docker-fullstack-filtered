@@ -13,8 +13,16 @@ router = APIRouter(prefix="/events", tags=["events"])
 
 
 @router.get("/", response_model=List[schemas.Event])
-def get_events(db: SessionDep):
-    return crud.get_events(db=db)
+def get_events(
+    db: SessionDep,
+    skip: int = 0,
+    limit: int = 100,
+    title: str = None,
+    location_id: int = None,
+):
+    return crud.get_events(
+        db=db, skip=skip, limit=limit, title=title, location_id=location_id
+    )
 
 
 @router.get("/me", response_model=List[schemas.Event])

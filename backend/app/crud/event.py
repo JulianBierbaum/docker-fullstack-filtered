@@ -11,8 +11,21 @@ from app.models.enums import UserRole
 from app.exceptions.db import DatabaseException
 
 
-def get_events(db: Session):
-    return db.query(Event).filter(Event.deleted_at.is_(None)).all()
+def get_events(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    title: str = None,
+    location_id: int = None,
+):
+    query = db.query(Event).filter(Event.deleted_at.is_(None))
+
+    if title:
+        query = query.filter(Event.title.ilike(f"%{title}%"))
+    if location_id:
+        query = query.filter(Event.location_id == location_id)
+
+    return query.offset(skip).limit(limit).all()
 
 
 def get_event(*, db: Session, event_id: int):
