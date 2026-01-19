@@ -7,7 +7,7 @@ interface User {
   id: number;
   email: string;
   username: string;
-  is_superuser: boolean;
+  role: string;
 }
 
 interface AuthContextType {

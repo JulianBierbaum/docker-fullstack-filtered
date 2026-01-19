@@ -78,7 +78,7 @@ def update_event(*, db: Session, event: EventUpdate, event_id: int):
         _ = get_location(db=db, location_id=update_data["location_id"])
     if "organizer_id" in update_data:
         db_user = get_user(db=db, user_id=update_data["organizer_id"])
-        if db_user.role != UserRole.ORGANIZER.value:
+        if db_user.role != UserRole.ORGANIZER.value and db_user.role != UserRole.ADMIN.value:
             raise WrongRoleException(user=db_user.username)
 
     for key, value in update_data.items():

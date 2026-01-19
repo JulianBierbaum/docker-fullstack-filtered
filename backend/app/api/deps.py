@@ -79,10 +79,6 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    if user.updated_at is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
-        )
     return user
 
 
