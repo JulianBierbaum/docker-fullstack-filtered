@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import cmd, users, login, booking, event, location, ticket
+from app.api.routes import booking, cmd, event, location, login, ticket, users
 
 api_router = APIRouter()
 api_router.include_router(cmd.router)

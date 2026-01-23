@@ -1,20 +1,20 @@
-
 import pytest
 from sqlalchemy.orm import Session
+
 from app.crud.user import (
+    authenticate_user,
     create_user,
     get_user,
-    get_users,
     get_user_by_email,
+    get_users,
     update_user,
-    authenticate_user,
 )
 from app.exceptions.user import (
     DuplicateEmailException,
     MissingUserException,
 )
-from app.schemas.user import UserCreate, UserUpdate
 from app.models.enums import UserRole
+from app.schemas.user import UserCreate, UserUpdate
 
 
 def test_get_user_success(db: Session, test_superuser):
@@ -41,6 +41,9 @@ def test_get_user_by_email_not_found(db: Session):
 
 
 def test_get_users(db: Session, test_superuser, test_organizer, test_visitor):
+    _ = test_superuser
+    _ = test_visitor
+    _ = test_organizer
     result = get_users(db=db)
     assert len(result) == 3
 

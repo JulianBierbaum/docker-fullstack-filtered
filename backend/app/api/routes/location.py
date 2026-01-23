@@ -1,20 +1,19 @@
-from typing import List
-from fastapi import APIRouter, HTTPException, status, Depends
-from app.crud import location as crud
-from app.schemas import location as schemas
+from fastapi import APIRouter, Depends, HTTPException, status
+
 from app.api.deps import SessionDep, roles_required
-from app.models.enums import UserRole
+from app.crud import location as crud
+from app.exceptions.db import DatabaseException
 from app.exceptions.location import (
     DuplicateLocationNameException,
     MissingLocationException,
 )
-from app.exceptions.db import DatabaseException
-
+from app.models.enums import UserRole
+from app.schemas import location as schemas
 
 router = APIRouter(prefix="/locations", tags=["locations"])
 
 
-@router.get("/", response_model=List[schemas.Location])
+@router.get("/", response_model=list[schemas.Location])
 def get_locations(db: SessionDep):
     return crud.get_locations(db=db)
 

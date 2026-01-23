@@ -1,14 +1,15 @@
 from datetime import datetime, timezone
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.exceptions.event import MissingEventException, WrongRoleException
-from app.models.event import Event
-from app.schemas.event import EventCreate, EventUpdate
 from app.crud.location import get_location
 from app.crud.user import get_user
-from app.models.enums import UserRole
 from app.exceptions.db import DatabaseException
+from app.exceptions.event import MissingEventException, WrongRoleException
+from app.models.enums import UserRole
+from app.models.event import Event
+from app.schemas.event import EventCreate, EventUpdate
 
 
 def get_events(
@@ -45,7 +46,10 @@ def get_event_by_organizer(*, db: Session, organizer_id: int):
 def create_event(*, db: Session, event: EventCreate):
     db_user = get_user(db=db, user_id=event.organizer_id)
 
-    if db_user.role != UserRole.ORGANIZER.value and db_user.role != UserRole.ADMIN.value:
+    if (
+        db_user.role != UserRole.ORGANIZER.value
+        and db_user.role != UserRole.ADMIN.value
+    ):
         raise WrongRoleException(user=db_user.username)
 
     _ = get_location(db=db, location_id=event.location_id)
@@ -78,7 +82,10 @@ def update_event(*, db: Session, event: EventUpdate, event_id: int):
         _ = get_location(db=db, location_id=update_data["location_id"])
     if "organizer_id" in update_data:
         db_user = get_user(db=db, user_id=update_data["organizer_id"])
-        if db_user.role != UserRole.ORGANIZER.value and db_user.role != UserRole.ADMIN.value:
+        if (
+            db_user.role != UserRole.ORGANIZER.value
+            and db_user.role != UserRole.ADMIN.value
+        ):
             raise WrongRoleException(user=db_user.username)
 
     for key, value in update_data.items():

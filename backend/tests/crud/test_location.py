@@ -1,12 +1,12 @@
-
 import pytest
 from sqlalchemy.orm import Session
+
 from app.crud.location import (
     create_location,
     delete_location,
     get_location,
-    get_locations,
     get_location_by_name,
+    get_locations,
     update_location,
 )
 from app.exceptions.location import (
@@ -46,9 +46,7 @@ def test_get_locations(db: Session, test_location):
 
 
 def test_create_location_success(db: Session):
-    location_data = LocationCreate(
-        name="New Location", address="456 New Street"
-    )
+    location_data = LocationCreate(name="New Location", address="456 New Street")
     result = create_location(db=db, location=location_data)
     assert result is not None
     assert result.name == "New Location"
@@ -64,9 +62,7 @@ def test_create_duplicate_location_name(db: Session, test_location):
 
 def test_update_location_success(db: Session, test_location):
     update_data = LocationUpdate(name="Updated Location")
-    result = update_location(
-        db=db, location=update_data, location_id=test_location.id
-    )
+    result = update_location(db=db, location=update_data, location_id=test_location.id)
     assert result is not None
     assert result.name == "Updated Location"
 

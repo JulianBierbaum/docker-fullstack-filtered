@@ -1,13 +1,12 @@
-from datetime import datetime, timezone
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models.booking import Booking
+from app.crud.ticket import delete_ticket, get_ticket
 from app.crud.user import get_user
-from app.crud.ticket import get_ticket
-from app.schemas.booking import BookingCreate, BookingUpdate
 from app.exceptions.booking import MissingBookingException
 from app.exceptions.db import DatabaseException
+from app.models.booking import Booking
+from app.schemas.booking import BookingCreate, BookingUpdate
 
 
 def get_all_bookings(db: Session):
@@ -29,6 +28,17 @@ def get_bookings_by_user(*, db: Session, user_id: int):
 
 def get_bookings_by_ticket(*, db: Session, ticket_id: int):
     return db.query(Booking).filter(Booking.ticket_id == ticket_id).all()
+
+
+def get_bookings_by_event(*, db: Session, event_id: int):
+    from app.models.ticket import Ticket
+
+    return (
+        db.query(Booking)
+        .join(Ticket, Booking.ticket_id == Ticket.id)
+        .filter(Ticket.event_id == event_id)
+        .all()
+    )
 
 
 def create_booking(*, db: Session, booking_data: BookingCreate):
@@ -72,14 +82,16 @@ def update_booking(*, db: Session, booking_number: int, booking_data: BookingUpd
         raise DatabaseException(str(e))
 
 
-def cancel_booking(*, db: Session, booking_number: int):
+def delete_booking(*, db: Session, booking_number: int):
     db_booking = get_booking(db=db, booking_number=booking_number)
+    ticket_id = db_booking.ticket_id
 
     try:
-        db_booking.cancelled_at = datetime.now(timezone.utc)
-
+        db.delete(db_booking)
         db.commit()
-        db.refresh(db_booking)
+
+        delete_ticket(db=db, ticket_id=ticket_id)
+
         return db_booking
     except IntegrityError as e:
         db.rollback()

@@ -1,6 +1,6 @@
 from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
 
 from app.models.enums import UserRole
 
@@ -16,16 +16,16 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    password: Optional[str] = None
-    email: Optional[EmailStr] = None
-    role: Optional[UserRole] = None
+    username: str | None = None
+    password: str | None = None
+    email: EmailStr | None = None
+    role: UserRole | None = None
 
 
 class UserInDBBase(UserBase):
     id: int
     created_at: datetime
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
     class Config:
         from_attributes = True

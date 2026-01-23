@@ -1,15 +1,15 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .config import settings
-
-from app.database.session import Base, engine
-from app.schemas import user as schemas
 from app.crud import user as crud
+from app.database.session import Base, engine
 from app.models.enums import UserRole
 
 # models must be imported and registered from app.models to create the tables
 from app.models.user import User
+from app.schemas import user as schemas
+
+from .config import settings
 
 
 def init_db(session: Session) -> None:

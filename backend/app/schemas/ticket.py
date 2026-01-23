@@ -1,6 +1,6 @@
 from datetime import datetime
+
 from pydantic import BaseModel, Field
-from typing import Optional
 
 
 class TicketBase(BaseModel):
@@ -14,16 +14,15 @@ class TicketCreate(TicketBase):
 
 
 class TicketUpdate(BaseModel):
-    event_id: Optional[int] = None
-    seat_num: Optional[str] = Field(None, max_length=10)
-    price: Optional[int] = Field(None)
+    event_id: int | None = None
+    seat_num: str | None = Field(None, max_length=50)
+    price: int | None = Field(None)
 
 
 class TicketInDBBase(TicketBase):
     id: int
     sold_at: datetime
-    updated_at: Optional[datetime] = None
-    cancelled_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -31,3 +30,13 @@ class TicketInDBBase(TicketBase):
 
 class Ticket(TicketInDBBase):
     pass
+
+
+class TicketDeleted(BaseModel):
+    id: int
+    event_id: int
+    seat_num: str
+    price: int
+
+    class Config:
+        from_attributes = True

@@ -1,6 +1,6 @@
 from datetime import datetime
+
 from pydantic import BaseModel
-from typing import Optional
 
 
 class BookingBase(BaseModel):
@@ -9,19 +9,18 @@ class BookingBase(BaseModel):
 
 
 class BookingCreate(BookingBase):
-    user_id: Optional[int] = None
+    user_id: int | None = None
 
 
 class BookingUpdate(BaseModel):
-    user_id: Optional[int] = None
-    ticket_id: Optional[int] = None
+    user_id: int | None = None
+    ticket_id: int | None = None
 
 
 class BookingInDBBase(BookingBase):
     booking_number: int
     created_at: datetime
-    updated_at: Optional[datetime] = None
-    cancelled_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -29,3 +28,12 @@ class BookingInDBBase(BookingBase):
 
 class Booking(BookingInDBBase):
     pass
+
+
+class BookingDeleted(BaseModel):
+    booking_number: int
+    user_id: int
+    ticket_id: int
+
+    class Config:
+        from_attributes = True

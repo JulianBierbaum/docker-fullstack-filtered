@@ -1,15 +1,15 @@
-import warnings
 import secrets
+import warnings
 from typing import Literal
 
 from pydantic import (
+    EmailStr,
     computed_field,
     model_validator,
 )
-from typing_extensions import Self
 from pydantic_core import MultiHostUrl
-from pydantic import EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing_extensions import Self
 
 
 class Settings(BaseSettings):

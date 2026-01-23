@@ -1,14 +1,15 @@
 from datetime import datetime, timezone
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.exceptions.db import DatabaseException
 from app.exceptions.location import (
     DuplicateLocationNameException,
     MissingLocationException,
 )
 from app.models.location import Location
 from app.schemas.location import LocationCreate, LocationUpdate
-from app.exceptions.db import DatabaseException
 
 
 def get_location(*, db: Session, location_id: int):

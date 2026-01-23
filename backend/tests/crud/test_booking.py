@@ -1,18 +1,20 @@
-
 import pytest
 from sqlalchemy.orm import Session
+
 from app.crud.booking import (
     create_booking,
-    cancel_booking,
-    get_booking,
+    delete_booking,
     get_all_bookings,
-    get_bookings_by_user,
+    get_booking,
+    get_bookings_by_event,
     get_bookings_by_ticket,
+    get_bookings_by_user,
     update_booking,
 )
-from app.exceptions.booking import MissingBookingException
-from app.schemas.booking import BookingCreate, BookingUpdate
 from app.crud.ticket import create_ticket
+from app.exceptions.booking import MissingBookingException
+from app.models.booking import Booking
+from app.schemas.booking import BookingCreate, BookingUpdate
 from app.schemas.ticket import TicketCreate
 
 
@@ -45,6 +47,12 @@ def test_get_bookings_by_ticket(db: Session, test_booking, test_ticket):
     assert result[0].booking_number == test_booking.booking_number
 
 
+def test_get_bookings_by_event(db: Session, test_booking, test_event):
+    result = get_bookings_by_event(db=db, event_id=test_event.id)
+    assert len(result) == 1
+    assert result[0].booking_number == test_booking.booking_number
+
+
 def test_create_booking_success(db: Session, test_visitor, test_event):
     ticket_data = TicketCreate(event_id=test_event.id, seat_num="C3", price=25)
     new_ticket = create_ticket(db=db, ticket=ticket_data)
@@ -56,6 +64,7 @@ def test_create_booking_success(db: Session, test_visitor, test_event):
 
 
 def test_update_booking_success(db: Session, test_booking, test_visitor, test_event):
+    _ = test_visitor
     ticket_data = TicketCreate(event_id=test_event.id, seat_num="D4", price=30)
     new_ticket = create_ticket(db=db, ticket=ticket_data)
     update_data = BookingUpdate(ticket_id=new_ticket.id)
@@ -72,12 +81,17 @@ def test_update_booking_not_found(db: Session):
         update_booking(db=db, booking_number=999, booking_data=update_data)
 
 
-def test_cancel_booking_success(db: Session, test_booking):
-    result = cancel_booking(db=db, booking_number=test_booking.booking_number)
+def test_delete_booking_success(db: Session, test_booking):
+    booking_number = test_booking.booking_number
+    result = delete_booking(db=db, booking_number=booking_number)
     assert result is not None
-    assert result.cancelled_at is not None
+    assert result.booking_number == booking_number
+    assert (
+        db.query(Booking).filter(Booking.booking_number == booking_number).first()
+        is None
+    )
 
 
-def test_cancel_booking_not_found(db: Session):
+def test_delete_booking_not_found(db: Session):
     with pytest.raises(MissingBookingException):
-        cancel_booking(db=db, booking_number=999)
+        delete_booking(db=db, booking_number=999)

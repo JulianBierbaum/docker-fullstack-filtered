@@ -1,48 +1,56 @@
+from datetime import date, time
+
 import pytest
+from fastapi.testclient import TestClient
+from passlib.context import CryptContext
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from fastapi.testclient import TestClient
+
+from app.api.deps import get_current_user, get_db, get_token_data
 from app.database.session import Base
-from app.api.deps import get_db, get_current_user
-from app.models.user import User
-from app.models.location import Location
-from app.models.event import Event
-from app.models.ticket import Ticket
-from app.models.booking import Booking
 from app.main import app
-from datetime import date, time
-from passlib.context import CryptContext
+from app.models.booking import Booking
 from app.models.enums import UserRole
+from app.models.event import Event
+from app.models.location import Location
+from app.models.ticket import Ticket
+from app.models.user import User
+from app.schemas.token import TokenData
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///test.db"
 ALGORITHM = "HS256"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
+
 
 @pytest.fixture(scope="function")
 def db():
     """Creates a new database session and ensures tables exist."""
-    Base.metadata.create_all(bind=engine)  
+    Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
     try:
-        yield session  
+        yield session
     finally:
         session.rollback()
         session.close()
-        Base.metadata.drop_all(bind=engine)  
+        Base.metadata.drop_all(bind=engine)
+
 
 @pytest.fixture(scope="function")
 def client(db):
     """Provides a FastAPI test client using the same session as the test."""
-    
+
     def override_get_db():
-        Base.metadata.create_all(bind=engine) 
+        Base.metadata.create_all(bind=engine)
         yield db
 
     app.dependency_overrides[get_db] = override_get_db
@@ -52,29 +60,47 @@ def client(db):
 @pytest.fixture
 def test_superuser(db):
     """Creates a superuser in the test database."""
-    user = User(username="superuser", email="superuser@example.com", hashed_password=hash_password("Kennwort1"), role=UserRole.ADMIN)
+    user = User(
+        username="superuser",
+        email="superuser@example.com",
+        hashed_password=hash_password("Kennwort1"),
+        role=UserRole.ADMIN,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
+
 
 @pytest.fixture
 def test_organizer(db):
     """Creates an organizer in the test database."""
-    user = User(username="organizer", email="organizer@example.com", hashed_password=hash_password("Kennwort1"), role=UserRole.ORGANIZER)
+    user = User(
+        username="organizer",
+        email="organizer@example.com",
+        hashed_password=hash_password("Kennwort1"),
+        role=UserRole.ORGANIZER,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
 
+
 @pytest.fixture
 def test_visitor(db):
     """Creates a visitor in the test database."""
-    user = User(username="visitor", email="visitor@example.com", hashed_password=hash_password("Kennwort1"), role=UserRole.VISITOR)
+    user = User(
+        username="visitor",
+        email="visitor@example.com",
+        hashed_password=hash_password("Kennwort1"),
+        role=UserRole.VISITOR,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
+
 
 @pytest.fixture
 def test_location(db):
@@ -87,6 +113,7 @@ def test_location(db):
     db.commit()
     db.refresh(location)
     return location
+
 
 @pytest.fixture
 def test_event(db, test_location, test_organizer):
@@ -105,6 +132,7 @@ def test_event(db, test_location, test_organizer):
     db.refresh(event)
     return event
 
+
 @pytest.fixture
 def test_ticket(db, test_event):
     """Creates a ticket in the test database."""
@@ -118,6 +146,7 @@ def test_ticket(db, test_event):
     db.refresh(ticket)
     return ticket
 
+
 @pytest.fixture
 def test_booking(db, test_visitor, test_ticket):
     """Creates a booking in the test database."""
@@ -130,29 +159,47 @@ def test_booking(db, test_visitor, test_ticket):
     db.refresh(booking)
     return booking
 
+
 @pytest.fixture
 def client_with_superuser(client, test_superuser):
     """Override `get_current_user` to return an admin user."""
+
     def override_get_current_user():
-        return test_superuser  
-    
+        return test_superuser
+
+    def override_get_token_data():
+        return TokenData(username=test_superuser.email, role=UserRole.ADMIN.value)
+
     app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_token_data] = override_get_token_data
     return client
+
 
 @pytest.fixture
 def client_with_organizer(client, test_organizer):
     """Override `get_current_user` to return an organizer user."""
+
     def override_get_current_user():
         return test_organizer
-    
+
+    def override_get_token_data():
+        return TokenData(username=test_organizer.email, role=UserRole.ORGANIZER.value)
+
     app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_token_data] = override_get_token_data
     return client
+
 
 @pytest.fixture
 def client_with_visitor(client, test_visitor):
     """Override `get_current_user` to return a visitor user."""
+
     def override_get_current_user():
         return test_visitor
-    
+
+    def override_get_token_data():
+        return TokenData(username=test_visitor.email, role=UserRole.VISITOR.value)
+
     app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_token_data] = override_get_token_data
     return client

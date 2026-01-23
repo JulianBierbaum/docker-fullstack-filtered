@@ -1,13 +1,12 @@
-from typing import List
-from fastapi import APIRouter, HTTPException, status, Depends
-from app.crud import ticket as crud
-from app.schemas import ticket as schemas
-from app.api.deps import SessionDep, roles_required
-from app.models.enums import UserRole
-from app.exceptions.ticket import MissingTicketException
-from app.exceptions.event import MissingEventException
-from app.exceptions.db import DatabaseException
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.api.deps import SessionDep, roles_required
+from app.crud import ticket as crud
+from app.exceptions.db import DatabaseException
+from app.exceptions.event import MissingEventException
+from app.exceptions.ticket import MissingTicketException
+from app.models.enums import UserRole
+from app.schemas import ticket as schemas
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
@@ -15,13 +14,17 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
 @router.get(
     "/",
     dependencies=[Depends(roles_required([UserRole.ADMIN]))],
-    response_model=List[schemas.Ticket],
+    response_model=list[schemas.Ticket],
 )
 def get_tickets(db: SessionDep):
     return crud.get_tickets(db=db)
 
 
-@router.post("/", response_model=schemas.Ticket)
+@router.post(
+    "/",
+    dependencies=[Depends(roles_required([UserRole.ORGANIZER, UserRole.ADMIN]))],
+    response_model=schemas.Ticket,
+)
 def create_ticket(db: SessionDep, ticket: schemas.TicketCreate):
     try:
         return crud.create_ticket(db=db, ticket=ticket)
@@ -62,10 +65,15 @@ def update_ticket(db: SessionDep, ticket_id: int, ticket: schemas.TicketUpdate):
         )
 
 
-@router.delete("/{ticket_id}", response_model=schemas.Ticket)
-def cancel_ticket(db: SessionDep, ticket_id: int):
+@router.delete(
+    "/{ticket_id}",
+    dependencies=[Depends(roles_required([UserRole.ADMIN]))],
+    response_model=schemas.TicketDeleted,
+)
+def delete_ticket(db: SessionDep, ticket_id: int):
+    """Delete a ticket (Admin only). Note: Prefer deleting via bookings."""
     try:
-        return crud.cancel_ticket(db=db, ticket_id=ticket_id)
+        return crud.delete_ticket(db=db, ticket_id=ticket_id)
     except MissingTicketException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DatabaseException as e:
@@ -75,12 +83,12 @@ def cancel_ticket(db: SessionDep, ticket_id: int):
         )
 
 
-@router.get("/event/{event_id}", response_model=List[schemas.Ticket])
+@router.get("/event/{event_id}", response_model=list[schemas.Ticket])
 def get_tickets_by_event(db: SessionDep, event_id: int):
     return crud.get_tickets_by_event(db=db, event_id=event_id)
 
 
-@router.get("/event/{event_id}/available", response_model=List[schemas.Ticket])
+@router.get("/event/{event_id}/available", response_model=list[schemas.Ticket])
 def get_available_tickets_by_event(db: SessionDep, event_id: int):
     return crud.get_available_tickets_by_event(db=db, event_id=event_id)
 

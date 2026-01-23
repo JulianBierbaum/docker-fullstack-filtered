@@ -1,13 +1,12 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.api.deps import SessionDep, get_current_user, roles_required
 from app.crud import user as crud
-from app.schemas import user as schemas
-from app.api.deps import SessionDep, roles_required, get_current_user
+from app.exceptions.db import DatabaseException
+from app.exceptions.user import DuplicateEmailException, MissingUserException
 from app.models.enums import UserRole
 from app.models.user import User
-from app.exceptions.user import DuplicateEmailException, MissingUserException
-from app.exceptions.db import DatabaseException
-
+from app.schemas import user as schemas
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -60,7 +59,16 @@ def update_user(db: SessionDep, user: schemas.UserUpdate, user_id: int):
 
 
 @router.get("/{user_id}", response_model=schemas.User)
-def get_user(db: SessionDep, user_id: int):
+def get_user(
+    db: SessionDep,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.role != UserRole.ADMIN.value and current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view your own user info",
+        )
     try:
         return crud.get_user(db=db, user_id=user_id)
     except MissingUserException as e:
@@ -70,7 +78,7 @@ def get_user(db: SessionDep, user_id: int):
 @router.get(
     "/",
     dependencies=[Depends(roles_required([UserRole.ADMIN]))],
-    response_model=List[schemas.User],
+    response_model=list[schemas.User],
 )
 def get_users(db: SessionDep):
     return crud.get_users(db=db)

@@ -1,14 +1,15 @@
-
 from datetime import date, time
+
 import pytest
 from sqlalchemy.orm import Session
+
 from app.crud.event import (
     create_event,
     delete_event,
     get_event,
+    get_event_by_organizer,
     get_events,
     get_events_by_location,
-    get_event_by_organizer,
     update_event,
 )
 from app.exceptions.event import MissingEventException, WrongRoleException
