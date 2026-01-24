@@ -33,7 +33,7 @@ def login_access_token(
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return schemas.Token(
         access_token=security.create_access_token(
-            user.email, expires_delta=access_token_expires, role=str(user.role)
+            user.email, expires_delta=access_token_expires, role=user.role.value
         ),
         token_type="bearer",
     )

@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Label } from "@/components/ui/label"
 import ProtectedRoute from "@/app/protectedRoute"
-import { useAuth } from "@/app/authContext"
+import { useAuth } from "@/app/hooks/useAuth"
 import { DataTable, eventColumns, Event } from "./dataTable"
 
 const defaultEvent: Partial<Event> = {
@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [organizerNames, setOrganizerNames] = useState<Record<number, string>>({})
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  
+
   const [selectedEvent, setSelectedEvent] = useState<Partial<Event>>()
   const [open, setOpen] = useState(false)
 
@@ -128,14 +128,14 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <div className="p-6 space-y-6">
-        
+
         {/* Header: Logout */}
         <div className="flex justify-end items-center">
           <Button onClick={logout} variant="outline">
             Logout
           </Button>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Events</h1>
         </div>
