@@ -15,8 +15,8 @@ class TicketCreate(TicketBase):
 
 class TicketUpdate(BaseModel):
     event_id: int | None = None
-    seat_num: str | None = Field(None, max_length=50)
-    price: int | None = Field(None)
+    seat_num: str | None = Field(default=None, max_length=50)
+    price: int | None = Field(default=None)
 
 
 class TicketInDBBase(TicketBase):

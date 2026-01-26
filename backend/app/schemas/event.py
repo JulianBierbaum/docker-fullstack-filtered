@@ -19,7 +19,7 @@ class EventCreate(BaseModel):
     start_time: time
     description: str | None = None
     location_id: int
-    organizer_id: int | None = None
+    organizer_id: int
     ticket_capacity: int
 
 

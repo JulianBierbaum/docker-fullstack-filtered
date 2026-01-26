@@ -50,7 +50,7 @@ def create_event(*, db: Session, event: EventCreate):
         db_user.role != UserRole.ORGANIZER.value
         and db_user.role != UserRole.ADMIN.value
     ):
-        raise WrongRoleException(user=db_user.username)
+        raise WrongRoleException(user=str(db_user.username))
 
     _ = get_location(db=db, location_id=event.location_id)
 

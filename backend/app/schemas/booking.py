@@ -9,7 +9,7 @@ class BookingBase(BaseModel):
 
 
 class BookingCreate(BookingBase):
-    user_id: int | None = None
+    pass
 
 
 class BookingUpdate(BaseModel):
