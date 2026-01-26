@@ -48,7 +48,7 @@ def authenticate_user(*, db: Session, email: str, password: str):
     return db_user
 
 
-def get_user_by_email(*, db: Session, email: str):
+def get_user_by_email(*, db: Session, email):
     return db.query(User).filter(User.email == email).first()
 
 
@@ -59,7 +59,7 @@ def update_user(*, db: Session, user: UserUpdate, user_id: int):
         raise MissingUserException(user=user.username)
 
     if get_user_by_email(db=db, email=user.email) and db_user.email != user.email:
-        raise DuplicateEmailException(email=user.email)
+        raise DuplicateEmailException(email=str(user.email))
 
     try:
         update_data = user.model_dump(exclude_unset=True)
