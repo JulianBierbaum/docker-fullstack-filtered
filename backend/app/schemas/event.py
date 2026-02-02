@@ -10,7 +10,7 @@ class EventBase(BaseModel):
     description: str | None = None
     location_id: int
     organizer_id: int
-    ticket_capacity: int
+    ticket_capacity: int = Field(..., gt=0)
 
 
 class EventCreate(BaseModel):
