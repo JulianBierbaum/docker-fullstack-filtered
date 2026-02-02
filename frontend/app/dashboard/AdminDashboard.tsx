@@ -204,6 +204,7 @@ export default function AdminDashboard() {
                                     <Label>Location ID</Label>
                                     <Input
                                         type="number"
+                                        min="1"
                                         value={selectedEvent.location_id || ''}
                                         onChange={(e) =>
                                             setSelectedEvent({ ...selectedEvent, location_id: parseInt(e.target.value) })
