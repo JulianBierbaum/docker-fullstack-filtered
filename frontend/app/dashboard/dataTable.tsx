@@ -20,6 +20,24 @@ export interface Event {
   organizer_id: number
 }
 
+export interface Location {
+  id: number
+  name: string
+  address: string
+  capacity: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface User {
+  id: number
+  username: string
+  email: string
+  role: string
+  created_at?: string
+  updated_at?: string
+}
+
 interface Column<T> {
   header: string
   accessorKey?: keyof T
@@ -73,19 +91,48 @@ export function DataTable<T extends { id: number }>({ columns, data, onRowClick 
   )
 }
 
-export const eventColumns = (onEdit: (e: Event) => void, onDelete: (id: number) => void) => [
-  { header: "Title", accessorKey: "title" as const },
-  { header: "Date", accessorKey: "event_date" as const },
-  { header: "Time", accessorKey: "start_time" as const },
+export const eventColumns = (
+  onEdit: (e: Event) => void,
+  onDelete: (id: number) => void,
+  availableTickets?: Record<number, number>
+) => [
+    { header: "Title", accessorKey: "title" as const },
+    { header: "Date", accessorKey: "event_date" as const },
+    { header: "Time", accessorKey: "start_time" as const },
+    {
+      header: "Available",
+      cell: (event: Event) => availableTickets?.[event.id] ?? '-'
+    },
+    {
+      header: "Actions",
+      cell: (event: Event) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete(event.id)
+          }}
+        >
+          <Trash2 className="h-4 w-4 text-red-500" />
+        </Button>
+      ),
+    },
+  ]
+
+export const locationColumns = (onEdit: (l: Location) => void, onDelete: (id: number) => void) => [
+  { header: "Name", accessorKey: "name" as const },
+  { header: "Address", accessorKey: "address" as const },
+  { header: "Capacity", accessorKey: "capacity" as const },
   {
     header: "Actions",
-    cell: (event: Event) => (
+    cell: (location: Location) => (
       <Button
         variant="ghost"
         size="icon"
         onClick={(e) => {
           e.stopPropagation()
-          onDelete(event.id)
+          onDelete(location.id)
         }}
       >
         <Trash2 className="h-4 w-4 text-red-500" />
@@ -93,3 +140,10 @@ export const eventColumns = (onEdit: (e: Event) => void, onDelete: (id: number) 
     ),
   },
 ]
+
+export const userColumns = (onEdit: (u: User) => void) => [
+  { header: "Username", accessorKey: "username" as const },
+  { header: "Email", accessorKey: "email" as const },
+  { header: "Role", accessorKey: "role" as const },
+]
+

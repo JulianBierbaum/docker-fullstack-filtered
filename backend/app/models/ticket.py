@@ -16,7 +16,7 @@ class Ticket(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
-    seat_num = Column(String(10), nullable=False)
+    seat_num = Column(String(100), nullable=False)
     price = Column(Integer, nullable=False)
     sold_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
